@@ -1,2 +1,3 @@
-# sapabapbot-go
-Бот для телеграм группы SAP ABAP 
+# SAP-ABAP-BOT
+
+Бот для телеграм группы SAP ABAP
