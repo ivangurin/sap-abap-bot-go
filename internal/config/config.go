@@ -29,9 +29,14 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	err := godotenv.Load(".env")
-	if err != nil {
-		return nil, fmt.Errorf("load .env file: %w", err)
+	_, err := os.Stat(".env")
+	if err == nil {
+		err = godotenv.Load(".env")
+		if err != nil {
+			return nil, fmt.Errorf("load .env file: %w", err)
+		}
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("check .env file: %w", err)
 	}
 
 	config := &Config{
