@@ -1,0 +1,12 @@
+services:
+  sap-abap-bot:
+    image: ghcr.io/ivangurin/sap-abap-bot-go
+    env_file:
+      - ./.env
+    environment:
+      - SAP_ABAP_BOT_TOKEN=$SAP_ABAP_BOT_TOKEN
+      - SAP_ABAP_BOT_ADMIN_USER_ID=$SAP_ABAP_BOT_ADMIN_USER_ID
+      - SAP_ABAP_BOT_ALLOWED_CHAT_IDS=$SAP_ABAP_BOT_ALLOWED_CHAT_IDS
+      - SAP_ABAP_BOT_GITHUB_TOKEN=$SAP_ABAP_BOT_GITHUB_TOKEN
+      - SAP_ABAP_BOT_DEBUG=$SAP_ABAP_BOT_DEBUG
+    restart: always

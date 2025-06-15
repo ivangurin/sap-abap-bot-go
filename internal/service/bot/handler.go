@@ -44,7 +44,7 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 	for _, answer := range answers {
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
-			Text:   tgbot.EscapeMarkdown(answer),
+			Text:   answer,
 			ReplyParameters: &models.ReplyParameters{
 				MessageID: update.Message.ID,
 			},
