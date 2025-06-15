@@ -1,8 +1,6 @@
 services:
   sap-abap-bot:
     image: ghcr.io/ivangurin/sap-abap-bot-go
-    env_file:
-      - ./.env
     environment:
       - SAP_ABAP_BOT_TOKEN=$SAP_ABAP_BOT_TOKEN
       - SAP_ABAP_BOT_ADMIN_USER_ID=$SAP_ABAP_BOT_ADMIN_USER_ID
