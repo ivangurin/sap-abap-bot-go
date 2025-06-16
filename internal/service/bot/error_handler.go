@@ -1,5 +1,5 @@
 package bot
 
 func (s *Service) ErrorHandler(err error) {
-	s.logger.Errorf("Error in bot handler: %s", err.Error())
+	s.logger.Errorf("error handler: %s", err.Error())
 }

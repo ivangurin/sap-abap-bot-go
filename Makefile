@@ -22,7 +22,7 @@ test:
 	go test -v -race -count=1 ./...
 
 run:
-	go run ./cmd/bot/main.go
+	go run ./cmd/bot
 
 pull-and-run:
 	docker compose down || true

@@ -43,11 +43,13 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 
 	for _, answer := range answers {
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   answer,
+			ChatID:          update.Message.Chat.ID,
+			MessageThreadID: update.Message.MessageThreadID,
+			Text:            tgbot.EscapeMarkdownUnescaped(answer),
 			ReplyParameters: &models.ReplyParameters{
 				MessageID: update.Message.ID,
 			},
+			ParseMode: models.ParseModeMarkdown,
 		})
 		if err != nil {
 			s.logger.Errorf("send message: %s", err.Error())
