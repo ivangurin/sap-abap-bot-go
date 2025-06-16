@@ -42,10 +42,14 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 	}
 
 	for _, answer := range answers {
+		s.logger.Infof("prompt: %s, answer: %s (correct: %t)", update.Message.Text, answer.Answer, answer.CorrectQuestion)
+		if !answer.CorrectQuestion {
+			continue
+		}
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID:          update.Message.Chat.ID,
 			MessageThreadID: update.Message.MessageThreadID,
-			Text:            tgbot.EscapeMarkdownUnescaped(answer),
+			Text:            tgbot.EscapeMarkdownUnescaped(answer.Answer),
 			ReplyParameters: &models.ReplyParameters{
 				MessageID: update.Message.ID,
 			},

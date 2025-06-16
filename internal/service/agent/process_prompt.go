@@ -8,7 +8,7 @@ import (
 	"bot/internal/client/github"
 )
 
-func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]string, error) {
+func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, error) {
 	resp, err := s.githubClient.ChatCompletions(ctx, &github.ChatCompletionRequest{
 		Model: s.config.AIModel,
 		Messages: []*github.ChatCompletionRequestMessage{
@@ -35,7 +35,7 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]string, e
 			resp.Error.Message, resp.Error.Type, resp.Error.Param, resp.Error.Code)
 	}
 
-	result := []string{}
+	result := []*Answer{}
 	for _, choice := range resp.Choices {
 		if choice.Message == nil {
 			continue
@@ -48,7 +48,7 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]string, e
 				continue
 			}
 			if answer != nil {
-				result = append(result, *answer)
+				result = append(result, answer)
 			}
 		}
 	}
@@ -56,7 +56,7 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]string, e
 	return result, nil
 }
 
-func (s *Service) executeFunction(functionName, arguments string) (*string, error) {
+func (s *Service) executeFunction(functionName, arguments string) (*Answer, error) {
 	switch functionName {
 	case "send_answer":
 		sendAnswer := &SendAnswer{}
@@ -64,9 +64,10 @@ func (s *Service) executeFunction(functionName, arguments string) (*string, erro
 			s.logger.Errorf("unmarshal send_answer arguments: %s", err.Error())
 			return nil, err
 		}
-		if sendAnswer.CorrectQuestion {
-			return &sendAnswer.Answer, nil
-		}
+		return &Answer{
+			CorrectQuestion: sendAnswer.CorrectQuestion,
+			Answer:          sendAnswer.Answer,
+		}, nil
 	default:
 		s.logger.Warnf("unknown function name: %s", functionName)
 	}

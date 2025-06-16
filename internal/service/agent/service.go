@@ -9,7 +9,7 @@ import (
 )
 
 type IService interface {
-	ProcessPrompt(ctx context.Context, prompt string) ([]string, error)
+	ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, error)
 }
 
 type Service struct {
@@ -35,7 +35,7 @@ func NewService(
 					"properties": map[string]any{
 						"correct_question": map[string]any{
 							"type":        "boolean",
-							"description": "Вопрос про SAP или ABAP",
+							"description": "Вопрос напрямую связан с SAP или ABAP",
 						},
 						"answer": map[string]any{
 							"type":        "string",
