@@ -64,7 +64,6 @@ func (s *Service) executeFunction(functionName, arguments string) (*Answer, erro
 			s.logger.Errorf("unmarshal answer: %s", err.Error())
 			return nil, err
 		}
-		fmt.Println("Answer received:", answer)
 		return answer, nil
 	default:
 		s.logger.Warnf("unknown function name: %s", functionName)
