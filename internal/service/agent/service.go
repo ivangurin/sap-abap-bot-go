@@ -33,9 +33,9 @@ func NewService(
 				Parameters: map[string]any{
 					"type": "object",
 					"properties": map[string]any{
-						"correct_question": map[string]any{
+						"answered": map[string]any{
 							"type":        "boolean",
-							"description": "Вопрос напрямую связан с SAP или ABAP",
+							"description": "Запрос пользователя релевантен для ответа",
 						},
 						"answer": map[string]any{
 							"type":        "string",

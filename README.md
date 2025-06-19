@@ -10,8 +10,8 @@
 
 ```bash
 SAP_ABAP_BOT_TOKEN — токен телеграм бота
-SAP_ABAP_BOT_TELEGRAM_ADMIN_USER_ID - ид пользователя админа
-SAP_ABAP_BOT_ALLOWED_CHAT_IDS - список через запятую ид групп в которых может работать бот. Если список не указан, то работает бот без ограничений 
+SAP_ABAP_BOT_TELEGRAM_ADMIN_USER_IDS - ид пользователей админов(через запятую)
+SAP_ABAP_BOT_ALLOWED_CHAT_IDS - ид групп в которых может работать бот(через запятую). Если список не указан, то работает бот без ограничений 
 SAP_ABAP_BOT_GITHUB_TOKEN — токен гитхаб акаунта
 SAP_ABAP_BOT_DEBUG - показывать отладочную информацию
 ```

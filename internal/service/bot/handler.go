@@ -20,7 +20,7 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 	}
 
 	if update.Message.Chat.ID == update.Message.From.ID {
-		if update.Message.From.ID != *s.config.AdminUserID {
+		if !slices.Contains(s.config.AdminUserIDs, update.Message.From.ID) {
 			return
 		}
 	} else {
@@ -42,8 +42,8 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 	}
 
 	for _, answer := range answers {
-		s.logger.Infof("prompt: %s, answer: %s (correct: %t)", update.Message.Text, answer.Answer, answer.CorrectQuestion)
-		if !answer.CorrectQuestion {
+		s.logger.Infof("prompt: %s, answer: %s (answered: %t, chatID: %d)", update.Message.Text, answer.Answer, answer.Answered, update.Message.Chat.ID)
+		if !answer.Answered {
 			continue
 		}
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{

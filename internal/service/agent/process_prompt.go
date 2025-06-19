@@ -59,15 +59,13 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, 
 func (s *Service) executeFunction(functionName, arguments string) (*Answer, error) {
 	switch functionName {
 	case "send_answer":
-		sendAnswer := &SendAnswer{}
-		if err := json.Unmarshal([]byte(arguments), sendAnswer); err != nil {
-			s.logger.Errorf("unmarshal send_answer arguments: %s", err.Error())
+		answer := &Answer{}
+		if err := json.Unmarshal([]byte(arguments), answer); err != nil {
+			s.logger.Errorf("unmarshal answer: %s", err.Error())
 			return nil, err
 		}
-		return &Answer{
-			CorrectQuestion: sendAnswer.CorrectQuestion,
-			Answer:          sendAnswer.Answer,
-		}, nil
+		fmt.Println("Answer received:", answer)
+		return answer, nil
 	default:
 		s.logger.Warnf("unknown function name: %s", functionName)
 	}

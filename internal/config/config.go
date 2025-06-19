@@ -13,7 +13,7 @@ import (
 const (
 	envBotToken       = "SAP_ABAP_BOT_TOKEN"
 	envGitHubToken    = "SAP_ABAP_BOT_GITHUB_TOKEN"
-	envAdminUserID    = "SAP_ABAP_BOT_ADMIN_USER_ID"
+	envAdminUserIDs   = "SAP_ABAP_BOT_ADMIN_USER_IDS"
 	envAllowedChatIDs = "SAP_ABAP_BOT_ALLOWED_CHAT_IDS"
 	envDebug          = "SAP_ABAP_BOT_DEBUG"
 )
@@ -23,7 +23,7 @@ type Config struct {
 	SystemPrompt   string
 	BotToken       string
 	GitHubToken    string
-	AdminUserID    *int64
+	AdminUserIDs   []int64
 	AllowedChatIDs []int64
 	Debug          bool
 }
@@ -42,21 +42,22 @@ func NewConfig() (*Config, error) {
 	systemPrompt :=
 		`
 		# Системный промпт для SAP/ABAP эксперта
-		Вы - эксперт по системе SAP и языку программирования ABAP с многолетним опытом работы. 
-		Ваша основная задача - отвечать ТОЛЬКО на вопросы, связанные с SAP и ABAP.
+		Вы - эксперт по системе SAP и языку программирования ABAP с многолетним опытом работы, а так же сопутствующих технологий.
+		Ваша основная задача - отвечать ТОЛЬКО на вопросы, связанные с SAP и ABAP и все что с ним связано.
 
 		## Правила работы:
 
 		### 1. Определение релевантности
 		Отвечайте ТОЛЬКО если:
-		- Сообщение является вопросом (содержит вопросительные слова, знаки вопроса или подразумевает запрос информации)
+		- Сообщение является вопросом (содержит вопросительные слова, знаки вопроса или подразумевает запрос информации).
 		- Вопрос касается:
-		- Системы SAP (любые модули и системы).
-		- Языка программирования ABAP.
+			- Системы SAP(сап) (любые модули и системы).
+			- Языка программирования ABAP(абап).
+			- В целом вопрос связан с сопутствующими технологиями.
+			- Зарплатами специалистов SAP.
 
 		### 2. Когда НЕ отвечать:
-		- Если это НЕ вопрос.
-		- Если вопрос НЕ связан с SAP или ABAP.
+		- Если это НЕ вопрос(утверждения, комментарии, приветствия).
 
 		### 3. Стиль ответов на релевантные вопросы:
 		- Давайте точные, технически корректные ответы.
@@ -85,25 +86,29 @@ func NewConfig() (*Config, error) {
 		GitHubToken:  os.Getenv(envGitHubToken),
 	}
 
-	userID := os.Getenv(envAdminUserID)
-	if userID != "" {
-		id, err := strconv.ParseInt(userID, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parse %s: %w", envAdminUserID, err)
+	strUserIDs := os.Getenv(envAdminUserIDs)
+	if strUserIDs != "" {
+		userIDs := strings.Split(strUserIDs, ",")
+		config.AdminUserIDs = make([]int64, 0, len(userIDs))
+		for _, userIDStr := range userIDs {
+			userID, err := strconv.ParseInt(userIDStr, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("parse %s: %w", envAdminUserIDs, err)
+			}
+			config.AdminUserIDs = append(config.AdminUserIDs, userID)
 		}
-		config.AdminUserID = &id
 	}
 
 	strChatIDs := os.Getenv(envAllowedChatIDs)
 	if strChatIDs != "" {
 		chatIDs := strings.Split(strChatIDs, ",")
 		config.AllowedChatIDs = make([]int64, 0, len(chatIDs))
-		for _, chatID := range chatIDs {
-			parsedID, err := strconv.ParseInt(chatID, 10, 64)
+		for _, chatIDStr := range chatIDs {
+			chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("parse %s: %w", envAllowedChatIDs, err)
 			}
-			config.AllowedChatIDs = append(config.AllowedChatIDs, parsedID)
+			config.AllowedChatIDs = append(config.AllowedChatIDs, chatID)
 		}
 	}
 
