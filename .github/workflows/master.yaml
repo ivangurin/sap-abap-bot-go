@@ -89,7 +89,7 @@ jobs:
           port: ${{ vars.SERVER_PORT }}
           script: |
             export SAP_ABAP_BOT_TOKEN=${{ secrets.SAP_ABAP_BOT_TOKEN }}
-            export SAP_ABAP_BOT_ADMIN_USER_ID=${{ vars.SAP_ABAP_BOT_ADMIN_USER_ID }}
+            export SAP_ABAP_BOT_ADMIN_USER_IDS=${{ vars.SAP_ABAP_BOT_ADMIN_USER_IDS }}
             export SAP_ABAP_BOT_ALLOWED_CHAT_IDS=${{ vars.SAP_ABAP_BOT_ALLOWED_CHAT_IDS }}
             export SAP_ABAP_BOT_GITHUB_TOKEN=${{ secrets.SAP_ABAP_BOT_GITHUB_TOKEN }}
             export SAP_ABAP_BOT_DEBUG=${{ vars.SAP_ABAP_BOT_DEBUG }}
