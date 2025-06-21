@@ -46,7 +46,7 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		}
 	}
 
-	threadMessages := s.getThreadMessage(messageThreadID)
+	threadMessages := s.getThreadMessages(messageThreadID)
 
 	answers, err := s.agentService.ProcessPrompt(ctx, update.Message.Text, threadMessages)
 	if err != nil {
@@ -74,29 +74,4 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		// Добавляем ответ в тред
 		s.addThreadMessage(messageThreadID, model.MessageTypeResponse, answer.Answer)
 	}
-}
-
-func (s *Service) addThreadMessage(threadID int64, messageType model.MessageType, messageText string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	thread, exists := s.threads[threadID]
-	if !exists {
-		thread = &model.Thread{}
-		s.threads[threadID] = thread
-	}
-
-	thread.Messages = append(thread.Messages, &model.ThreadMessage{
-		Type: messageType,
-		Text: messageText,
-	})
-}
-
-func (s *Service) getThreadMessage(threadID int64) []*model.ThreadMessage {
-	thread, exists := s.threads[threadID]
-	if !exists {
-		return []*model.ThreadMessage{}
-	}
-
-	return thread.Messages
 }

@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type MessageType int
 
 const (
@@ -13,5 +15,6 @@ type ThreadMessage struct {
 }
 
 type Thread struct {
-	Messages []*ThreadMessage
+	StartedAt time.Time
+	Messages  []*ThreadMessage
 }

@@ -13,6 +13,8 @@ func (s *Service) Run(ctx context.Context) error {
 
 	s.username = me.Username
 
+	go s.clearThreads(ctx)
+
 	s.bot.Start(ctx)
 
 	return nil
