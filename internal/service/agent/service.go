@@ -5,11 +5,12 @@ import (
 
 	github_client "bot/internal/client/github"
 	pkg_config "bot/internal/config"
+	"bot/internal/model"
 	pkg_logger "bot/internal/pkg/logger"
 )
 
 type IService interface {
-	ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, error)
+	ProcessPrompt(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) ([]*Answer, error)
 }
 
 type Service struct {

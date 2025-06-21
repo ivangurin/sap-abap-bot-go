@@ -2,18 +2,20 @@ package bot
 
 import (
 	"context"
+	"sync"
 
 	tgbot "github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
 	pkg_config "bot/internal/config"
+	"bot/internal/model"
 	pkg_logger "bot/internal/pkg/logger"
 	"bot/internal/service/agent"
 )
 
 type IService interface {
 	Run(ctx context.Context) error
-	Handler(ctx context.Context, bot *tgbot.Bot, update *models.Update)
+	DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *models.Update)
 	ErrorHandler(err error)
 	Close(ctx context.Context) error
 }
@@ -24,6 +26,8 @@ type Service struct {
 	bot          *tgbot.Bot
 	agentService agent.IService
 	username     string
+	threads      map[int64]*model.Thread
+	mu           sync.Mutex
 }
 
 func NewService(
@@ -38,7 +42,7 @@ func NewService(
 	}
 
 	opts := []tgbot.Option{
-		tgbot.WithDefaultHandler(service.Handler),
+		tgbot.WithDefaultHandler(service.DefaultHandler),
 		tgbot.WithErrorsHandler(service.ErrorHandler),
 	}
 
@@ -51,6 +55,8 @@ func NewService(
 	if err != nil {
 		logger.Fatalf("create bot: %s", err.Error())
 	}
+
+	service.threads = make(map[int64]*model.Thread)
 
 	return service
 }

@@ -6,18 +6,20 @@ import (
 	"fmt"
 
 	"bot/internal/client/github"
+	"bot/internal/model"
 )
 
-func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, error) {
-	resp, err := s.chatCompletion(ctx, prompt)
+func (s *Service) ProcessPrompt(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) ([]*Answer, error) {
+	resp, err := s.chatCompletion(ctx, prompt, threadMessages)
 	if err != nil {
-		s.logger.Errorf("get chat completion: %s", err.Error())
+		s.logger.Errorf("chat completion: %s", err.Error())
 		return nil, fmt.Errorf("chatCompletion: %w", err)
 	}
 
 	if resp.Error != nil {
-		return nil, fmt.Errorf("chat completion error: %s (type: %s, param: %s, code: %s)",
+		s.logger.Errorf("chat completion error: %s (type: %s, param: %s, code: %s)",
 			resp.Error.Message, resp.Error.Type, resp.Error.Param, resp.Error.Code)
+		return []*Answer{{Answer: resp.Error.Message}}, nil
 	}
 
 	result := []*Answer{}
@@ -41,28 +43,45 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, 
 	return result, nil
 }
 
-func (s *Service) chatCompletion(ctx context.Context, prompt string) (*github.ChatCompletionResponse, error) {
+func (s *Service) chatCompletion(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) (*github.ChatCompletionResponse, error) {
+	messages := make([]*github.ChatCompletionRequestMessage, 0, len(threadMessages)+2)
+	messages = append(messages, &github.ChatCompletionRequestMessage{
+		Role:    RoleSystem,
+		Content: s.config.SystemPrompt,
+	})
+
+	for _, threadMessage := range threadMessages {
+		switch threadMessage.Type {
+		case model.MessageTypeRequest:
+			messages = append(messages, &github.ChatCompletionRequestMessage{
+				Role:    RoleUser,
+				Content: threadMessage.Text,
+			})
+		case model.MessageTypeResponse:
+			messages = append(messages, &github.ChatCompletionRequestMessage{
+				Role:    RoleAssistant,
+				Content: threadMessage.Text,
+			})
+		}
+	}
+
+	messages = append(messages, &github.ChatCompletionRequestMessage{
+		Role:    RoleUser,
+		Content: prompt,
+	})
+
 	var err error
-	for _, model := range s.config.AIModels {
+	for _, AIModel := range s.config.AIModels {
 		var resp *github.ChatCompletionResponse
 		resp, err = s.githubClient.ChatCompletions(ctx, &github.ChatCompletionRequest{
-			Model: model,
-			Messages: []*github.ChatCompletionRequestMessage{
-				{
-					Role:    "system",
-					Content: s.config.SystemPrompt,
-				},
-				{
-					Role:    "user",
-					Content: prompt,
-				},
-			},
+			Model:       AIModel,
+			Messages:    messages,
 			Tools:       s.tools,
-			ToolChoice:  "auto",
-			Temperature: 0.7,
+			ToolChoice:  ToolChoiceAuto,
+			Temperature: Temperature,
 		})
 		if err != nil {
-			s.logger.Errorf("get chat completion for model %s: %s", model, err.Error())
+			s.logger.Errorf("get chat completion for model %s: %s", AIModel, err.Error())
 			continue
 		}
 
