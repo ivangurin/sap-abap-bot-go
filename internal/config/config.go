@@ -19,7 +19,7 @@ const (
 )
 
 type Config struct {
-	AIModel        string
+	AIModels       []string
 	SystemPrompt   string
 	BotToken       string
 	GitHubToken    string
@@ -80,7 +80,7 @@ func NewConfig() (*Config, error) {
 	`
 
 	config := &Config{
-		AIModel:      "gpt-4.1-mini",
+		AIModels:     []string{"gpt-4.1", "gpt-4o", "gpt-4.1-mini", "gpt-4o-mini", "gpt-4.1-nano"},
 		SystemPrompt: systemPrompt,
 		BotToken:     os.Getenv(envBotToken),
 		GitHubToken:  os.Getenv(envGitHubToken),

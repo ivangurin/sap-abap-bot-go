@@ -9,25 +9,10 @@ import (
 )
 
 func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, error) {
-	resp, err := s.githubClient.ChatCompletions(ctx, &github.ChatCompletionRequest{
-		Model: s.config.AIModel,
-		Messages: []*github.ChatCompletionRequestMessage{
-			{
-				Role:    "system",
-				Content: s.config.SystemPrompt,
-			},
-			{
-				Role:    "user",
-				Content: prompt,
-			},
-		},
-		Tools:       s.tools,
-		ToolChoice:  "auto",
-		Temperature: 0.7,
-	})
+	resp, err := s.chatCompletion(ctx, prompt)
 	if err != nil {
 		s.logger.Errorf("get chat completion: %s", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("chatCompletion: %w", err)
 	}
 
 	if resp.Error != nil {
@@ -54,6 +39,37 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string) ([]*Answer, 
 	}
 
 	return result, nil
+}
+
+func (s *Service) chatCompletion(ctx context.Context, prompt string) (*github.ChatCompletionResponse, error) {
+	var err error
+	for _, model := range s.config.AIModels {
+		var resp *github.ChatCompletionResponse
+		resp, err = s.githubClient.ChatCompletions(ctx, &github.ChatCompletionRequest{
+			Model: model,
+			Messages: []*github.ChatCompletionRequestMessage{
+				{
+					Role:    "system",
+					Content: s.config.SystemPrompt,
+				},
+				{
+					Role:    "user",
+					Content: prompt,
+				},
+			},
+			Tools:       s.tools,
+			ToolChoice:  "auto",
+			Temperature: 0.7,
+		})
+		if err != nil {
+			s.logger.Errorf("get chat completion for model %s: %s", model, err.Error())
+			continue
+		}
+
+		return resp, nil
+	}
+
+	return nil, err
 }
 
 func (s *Service) executeFunction(functionName, arguments string) (*Answer, error) {

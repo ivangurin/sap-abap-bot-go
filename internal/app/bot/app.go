@@ -53,7 +53,11 @@ func (a *App) Run() error {
 
 	go func() {
 		a.logger.Info("starting bot service...")
-		a.sp.GetBotService().Run(a.ctx)
+		err := a.sp.GetBotService().Run(a.ctx)
+		if err != nil {
+			a.logger.Errorf("bot run: %s", err.Error())
+			a.closer.CloseAll()
+		}
 	}()
 
 	a.closer.Add(func() error {

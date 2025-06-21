@@ -33,10 +33,6 @@ func NewService(
 				Parameters: map[string]any{
 					"type": "object",
 					"properties": map[string]any{
-						"answered": map[string]any{
-							"type":        "boolean",
-							"description": "Запрос пользователя релевантен для ответа",
-						},
 						"answer": map[string]any{
 							"type":        "string",
 							"description": "Ответ пользователю",

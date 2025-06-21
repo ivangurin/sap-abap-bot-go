@@ -12,7 +12,7 @@ import (
 )
 
 type IService interface {
-	Run(ctx context.Context)
+	Run(ctx context.Context) error
 	Handler(ctx context.Context, bot *tgbot.Bot, update *models.Update)
 	ErrorHandler(err error)
 	Close(ctx context.Context) error
@@ -23,6 +23,7 @@ type Service struct {
 	logger       *pkg_logger.Logger
 	bot          *tgbot.Bot
 	agentService agent.IService
+	username     string
 }
 
 func NewService(

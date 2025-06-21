@@ -3,6 +3,7 @@ package bot
 import (
 	"context"
 	"slices"
+	"strings"
 
 	tgbot "github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -24,10 +25,8 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 			return
 		}
 	} else {
-		if s.config.AllowedChatIDs != nil {
-			if !slices.Contains(s.config.AllowedChatIDs, update.Message.Chat.ID) {
-				return
-			}
+		if !strings.Contains(update.Message.Text, "@"+s.username) {
+			return
 		}
 	}
 
@@ -42,10 +41,6 @@ func (s *Service) Handler(ctx context.Context, bot *tgbot.Bot, update *models.Up
 	}
 
 	for _, answer := range answers {
-		s.logger.Infof("prompt: %s, answer: %s (answered: %t, chatID: %d)", update.Message.Text, answer.Answer, answer.Answered, update.Message.Chat.ID)
-		if !answer.Answered {
-			continue
-		}
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID:          update.Message.Chat.ID,
 			MessageThreadID: update.Message.MessageThreadID,
