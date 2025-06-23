@@ -39,6 +39,9 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		if !allowed {
 			if strings.Contains(update.Message.Text, "@"+s.username) {
 				allowed = true
+				if update.Message.ReplyToMessage != nil {
+					update.Message.Text = update.Message.ReplyToMessage.Text + "\n" + update.Message.Text
+				}
 			}
 		}
 		if !allowed {
@@ -46,16 +49,18 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		}
 	}
 
+	messageText := strings.Replace(update.Message.Text, "@"+s.username, "", 1)
+
 	threadMessages := s.getThreadMessages(messageThreadID)
 
-	answers, err := s.agentService.ProcessPrompt(ctx, update.Message.Text, threadMessages)
+	answers, err := s.agentService.ProcessPrompt(ctx, messageText, threadMessages)
 	if err != nil {
 		s.logger.Errorf("process prompt: %s", err.Error())
 		return
 	}
 
 	// Добавляем вопроса в тред
-	s.addThreadMessage(messageThreadID, model.MessageTypeRequest, update.Message.Text)
+	s.addThreadMessage(messageThreadID, model.MessageTypeRequest, messageText)
 
 	for _, answer := range answers {
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{

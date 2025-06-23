@@ -23,6 +23,10 @@ func (s *Service) getThread(threadID int64) *model.Thread {
 }
 
 func (s *Service) addThreadMessage(threadID int64, messageType model.MessageType, messageText string) {
+	if messageText == "" {
+		return
+	}
+
 	thread := s.getThread(threadID)
 
 	s.mu.Lock()
