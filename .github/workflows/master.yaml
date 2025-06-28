@@ -81,11 +81,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ vars.SERVER_HOST }}
           port: ${{ vars.SERVER_PORT }}
-          password: ${{ secrets.SERVER_KEY }}
+          username: ${{ vars.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_KEY }}
           script: |
             export SAP_ABAP_BOT_TOKEN=${{ secrets.SAP_ABAP_BOT_TOKEN }}
             export SAP_ABAP_BOT_ADMIN_USER_IDS=${{ vars.SAP_ABAP_BOT_ADMIN_USER_IDS }}
