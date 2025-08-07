@@ -64,11 +64,11 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 	s.addThreadMessage(messageThreadID, model.MessageTypeRequest, messageText)
 
 	for _, answer := range answers {
-		answerTest := escapeMarkdown(answer.Answer)
+		answerEsc := escapeMarkdown(answer.Answer)
     
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
-			Text:   answer.Answer,
+			Text:   answerEsc,
 			ReplyParameters: &models.ReplyParameters{
 				MessageID: update.Message.ID,
 			},
