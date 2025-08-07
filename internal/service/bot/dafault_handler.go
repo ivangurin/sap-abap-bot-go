@@ -65,10 +65,10 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 
 	for _, answer := range answers {
 		answerTest := escapeMarkdown(answer.Answer)
-
+    
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
-			Text:   answerTest,
+			Text:   answer.Answer,
 			ReplyParameters: &models.ReplyParameters{
 				MessageID: update.Message.ID,
 			},
