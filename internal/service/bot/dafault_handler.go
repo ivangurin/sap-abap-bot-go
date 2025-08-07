@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -63,6 +64,8 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 	s.addThreadMessage(messageThreadID, model.MessageTypeRequest, messageText)
 
 	for _, answer := range answers {
+		answerTest := escapeMarkdown(answer.Answer)
+    
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
 			Text:   answer.Answer,
@@ -79,4 +82,19 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		// Добавляем ответ в тред
 		s.addThreadMessage(messageThreadID, model.MessageTypeResponse, answer.Answer)
 	}
+}
+
+var markdownCodeRegex = regexp.MustCompile("(?s)```.*?```|`[^`]*`")
+
+func escapeMarkdown(text string) string {
+	matches := markdownCodeRegex.FindAllStringIndex(text, -1)
+	var result strings.Builder
+	last := 0
+	for _, m := range matches {
+		result.WriteString(tgbot.EscapeMarkdownUnescaped(text[last:m[0]]))
+		result.WriteString(text[m[0]:m[1]])
+		last = m[1]
+	}
+	result.WriteString(tgbot.EscapeMarkdownUnescaped(text[last:]))
+	return result.String()
 }
