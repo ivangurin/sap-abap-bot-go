@@ -63,12 +63,13 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 	s.addThreadMessage(messageThreadID, model.MessageTypeRequest, messageText)
 
 	for _, answer := range answers {
-		answerTest := tgbot.EscapeMarkdownUnescaped(answer.Answer)
-		answerTest = strings.ReplaceAll(answerTest, "\\`\\`\\`", "```")
+		answerText := tgbot.EscapeMarkdownUnescaped(answer.Answer)
+		answerText = strings.ReplaceAll(answerText, "\\`\\`\\`", "```")
+		answerText = strings.ReplaceAll(answerText, "\\*\\*", "**")
 
 		_, err := bot.SendMessage(ctx, &tgbot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
-			Text:   answerTest,
+			Text:   answerText,
 			ReplyParameters: &models.ReplyParameters{
 				MessageID: update.Message.ID,
 			},
