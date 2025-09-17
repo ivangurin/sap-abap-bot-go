@@ -28,4 +28,4 @@ pull-and-run:
 	docker compose down || true
 	docker container rm sap-abap-bot || true
 	docker image rm ghcr.io/ivangurin/sap-abap-bot-go || true
-	docker compose up -d
+	docker compose up -d 
