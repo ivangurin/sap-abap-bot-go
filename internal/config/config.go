@@ -39,8 +39,7 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("check .env file: %w", err)
 	}
 
-	systemPrompt :=
-		`
+	systemPrompt := `
 		# Системный промпт для SAP/ABAP эксперта
 		Вы - эксперт по системе SAP и языку программирования ABAP с многолетним опытом работы, а так же сопутствующих технологий.
 		Ваша основная задача - отвечать ТОЛЬКО на вопросы, связанные с SAP и ABAP и все что с ним связано.
