@@ -1,17 +1,19 @@
 lint:
 	go tool golangci-lint run \
-	--new-from-rev=main \
-	--config=.golangci.yaml \
-	--max-issues-per-linter=1000 \
-	--max-same-issues=1000 \
-	./...
+		--fix \
+		--new-from-rev=master \
+		--config=.golangci.yaml \
+		--max-issues-per-linter=1000 \
+		--max-same-issues=1000 \
+		./...
 
 lint-full:
 	go tool golangci-lint run \
-	--config=.golangci.yaml \
-	--max-issues-per-linter=1000 \
-	--max-same-issues=1000 \
-	./...
+		--fix \
+		--config=.golangci.yaml \
+		--max-issues-per-linter=1000 \
+		--max-same-issues=1000 \
+		./...
 
 genmock: 
 	go tool mockery
