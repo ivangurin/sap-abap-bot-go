@@ -8,10 +8,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const (
+	AIProviderGitHub    = "github"
+	AIProviderAnthropic = "anthropic"
+)
+
 type Config struct {
-	App      App
-	Telegram Telegram
-	GitHub   GitHub
+	App       App
+	Telegram  Telegram
+	GitHub    GitHub
+	Anthropic Anthropic
 }
 
 type App struct {
@@ -27,8 +33,15 @@ type Telegram struct {
 	AllowedChatIDs []int64 `env:"SAP_ABAP_BOT_ALLOWED_CHAT_IDS"`
 }
 type GitHub struct {
+	BaseURL string `env:"SAP_ABAP_BOT_GITHUB_BASE_URL" envDefault:"https://models.inference.ai.azure.com"`
 	Token   string `env:"SAP_ABAP_BOT_GITHUB_TOKEN"`
 	AIModel string `env:"SAP_ABAP_BOT_GITHUB_AI_MODEL" envDefault:"gpt-4.1"`
+}
+
+type Anthropic struct {
+	BaseURL string `env:"SAP_ABAP_BOT_ANTHROPIC_BASE_URL" envDefault:""`
+	Token   string `env:"SAP_ABAP_BOT_ANTHROPIC_TOKEN"`
+	AIModel string `env:"SAP_ABAP_BOT_ANTHROPIC_AI_MODEL" envDefault:"claude-opus-4-8"`
 }
 
 func NewConfig() (*Config, error) {
@@ -46,69 +59,21 @@ func NewConfig() (*Config, error) {
 	}
 
 	config.App.SystemPrompt = `
-		# Системный промпт для SAP/ABAP эксперта
-		Вы - эксперт по системе SAP и языку программирования ABAP с многолетним опытом работы, а так же сопутствующих технологий.
-		Ваша основная задача - отвечать ТОЛЬКО на вопросы, связанные с SAP и ABAP и все что с ним связано.
+		# Роль
+		Ты — эксперт по системе SAP и языку программирования ABAP с многолетним опытом, а также по сопутствующим технологиям.
 
-		## Правила работы:
+		# Как отвечать
+		- Всегда отвечай на сообщение пользователя — к тебе обратились, поэтому ответ обязателен.
+		- Давай точные и технически корректные ответы; при необходимости приводи примеры кода ABAP и поясняй терминологию SAP.
+		- Отвечай на языке сообщения.
+		- Отвечай кратко и по существу — сразу суть, без вступлений и без упоминаний о том, что вопрос связан с SAP или ABAP.
+		- Не задавай пользователю уточняющих вопросов. Если данных не хватает — отвечай на основе общих знаний.
+		- Если не знаешь ответа — честно скажи об этом и ничего не выдумывай.
+		- Если сообщение не относится к SAP или ABAP, всё равно ответь коротко и по существу.
 
-		### 1. Определение релевантности
-		Отвечайте ТОЛЬКО если:
-		- Сообщение является вопросом (содержит вопросительные слова, знаки вопроса или подразумевает запрос информации).
-		- Вопрос касается:
-			- Системы SAP(сап) (любые модули и системы).
-			- Языка программирования ABAP(абап).
-			- В целом вопрос связан с сопутствующими технологиями.
-			- Зарплатами специалистов SAP.
-
-		### 2. Когда НЕ отвечать:
-		- Если это НЕ вопрос(утверждения, комментарии, приветствия).
-
-		### 3. Стиль ответов на релевантные вопросы:
-		- Давайте точные, технически корректные ответы.
-		- Используйте примеры кода ABAP при необходимости.
-		- Объясняйте SAP терминологию.
-		- Предоставляйте практические решения.
-
-		### 4. Общие рекомендации:
-		- Используй доступные функции для ответа на вопросы пользователя.
-		- Всегда отвечайте на языке вопроса.
-		- Отвечай на вопрос как можно лучше, используя свои знания.
-		- Подумай перед ответом дважды, чтобы дать максимально точный и полезный ответ.
-		- Не пиши в ответе, что вопрос связан с SAP или ABAP.
-		- Не спрашивай у пользователя дополнительные вопросы.
-		- Если вопрос неясен, дай ответ на основе имеющейся информации.
-		- Если вопрос не содержит достаточно информации, дай ответ на основе общих знаний о SAP или ABAP.
-		- Если ты не знаешь ответа на вопрос, скажи что не знаешь ответа и не пытайся придумать ответ.
-		- Ответ оформи в виде MarkdownV2 для telegram.
-		- Если вопрос не является вопросом, напиши в ответе почему он не является вопросом.
+		# Форматирование
+		Ответ отправляется в Telegram. Из форматирования используй только жирный текст в виде **текст** и блоки кода в тройных обратных кавычках с указанием языка. Ссылки, курсив, заголовки и таблицы не используй.
 	`
-
-	// strUserIDs := os.Getenv(envAdminUserIDs)
-	// if strUserIDs != "" {
-	// 	userIDs := strings.Split(strUserIDs, ",")
-	// 	config.Telegram.AdminUserIDs = make([]int64, 0, len(userIDs))
-	// 	for _, userIDStr := range userIDs {
-	// 		userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	// 		if err != nil {
-	// 			return nil, fmt.Errorf("parse %s: %w", envAdminUserIDs, err)
-	// 		}
-	// 		config.Telegram.AdminUserIDs = append(config.Telegram.AdminUserIDs, userID)
-	// 	}
-	// }
-
-	// strChatIDs := os.Getenv(envAllowedChatIDs)
-	// if strChatIDs != "" {
-	// 	chatIDs := strings.Split(strChatIDs, ",")
-	// 	config.Telegram.AllowedChatIDs = make([]int64, 0, len(chatIDs))
-	// 	for _, chatIDStr := range chatIDs {
-	// 		chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
-	// 		if err != nil {
-	// 			return nil, fmt.Errorf("parse %s: %w", envAllowedChatIDs, err)
-	// 		}
-	// 		config.Telegram.AllowedChatIDs = append(config.Telegram.AllowedChatIDs, chatID)
-	// 	}
-	// }
 
 	return &config, nil
 }

@@ -3,8 +3,9 @@
 package mocks
 
 import (
-	github "bot/internal/clients/github"
 	context "context"
+
+	model "bot/internal/model"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -22,29 +23,29 @@ func (_m *Client) EXPECT() *Client_Expecter {
 	return &Client_Expecter{mock: &_m.Mock}
 }
 
-// ChatCompletions provides a mock function with given fields: ctx, request
-func (_m *Client) ChatCompletions(ctx context.Context, request *github.ChatCompletionRequest) (*github.ChatCompletionResponse, error) {
-	ret := _m.Called(ctx, request)
+// Ask provides a mock function with given fields: ctx, systemPrompt, messages
+func (_m *Client) Ask(ctx context.Context, systemPrompt string, messages []*model.ChatMessage) ([]string, error) {
+	ret := _m.Called(ctx, systemPrompt, messages)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ChatCompletions")
+		panic("no return value specified for Ask")
 	}
 
-	var r0 *github.ChatCompletionResponse
+	var r0 []string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *github.ChatCompletionRequest) (*github.ChatCompletionResponse, error)); ok {
-		return rf(ctx, request)
+	if rf, ok := ret.Get(0).(func(context.Context, string, []*model.ChatMessage) ([]string, error)); ok {
+		return rf(ctx, systemPrompt, messages)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *github.ChatCompletionRequest) *github.ChatCompletionResponse); ok {
-		r0 = rf(ctx, request)
+	if rf, ok := ret.Get(0).(func(context.Context, string, []*model.ChatMessage) []string); ok {
+		r0 = rf(ctx, systemPrompt, messages)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*github.ChatCompletionResponse)
+			r0 = ret.Get(0).([]string)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *github.ChatCompletionRequest) error); ok {
-		r1 = rf(ctx, request)
+	if rf, ok := ret.Get(1).(func(context.Context, string, []*model.ChatMessage) error); ok {
+		r1 = rf(ctx, systemPrompt, messages)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -52,31 +53,32 @@ func (_m *Client) ChatCompletions(ctx context.Context, request *github.ChatCompl
 	return r0, r1
 }
 
-// Client_ChatCompletions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChatCompletions'
-type Client_ChatCompletions_Call struct {
+// Client_Ask_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Ask'
+type Client_Ask_Call struct {
 	*mock.Call
 }
 
-// ChatCompletions is a helper method to define mock.On call
+// Ask is a helper method to define mock.On call
 //   - ctx context.Context
-//   - request *github.ChatCompletionRequest
-func (_e *Client_Expecter) ChatCompletions(ctx interface{}, request interface{}) *Client_ChatCompletions_Call {
-	return &Client_ChatCompletions_Call{Call: _e.mock.On("ChatCompletions", ctx, request)}
+//   - systemPrompt string
+//   - messages []*model.ChatMessage
+func (_e *Client_Expecter) Ask(ctx interface{}, systemPrompt interface{}, messages interface{}) *Client_Ask_Call {
+	return &Client_Ask_Call{Call: _e.mock.On("Ask", ctx, systemPrompt, messages)}
 }
 
-func (_c *Client_ChatCompletions_Call) Run(run func(ctx context.Context, request *github.ChatCompletionRequest)) *Client_ChatCompletions_Call {
+func (_c *Client_Ask_Call) Run(run func(ctx context.Context, systemPrompt string, messages []*model.ChatMessage)) *Client_Ask_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*github.ChatCompletionRequest))
+		run(args[0].(context.Context), args[1].(string), args[2].([]*model.ChatMessage))
 	})
 	return _c
 }
 
-func (_c *Client_ChatCompletions_Call) Return(_a0 *github.ChatCompletionResponse, _a1 error) *Client_ChatCompletions_Call {
+func (_c *Client_Ask_Call) Return(_a0 []string, _a1 error) *Client_Ask_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Client_ChatCompletions_Call) RunAndReturn(run func(context.Context, *github.ChatCompletionRequest) (*github.ChatCompletionResponse, error)) *Client_ChatCompletions_Call {
+func (_c *Client_Ask_Call) RunAndReturn(run func(context.Context, string, []*model.ChatMessage) ([]string, error)) *Client_Ask_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,6 +1,7 @@
 package service_provider
 
 import (
+	pkg_config "bot/internal/config"
 	"bot/internal/service/agent"
 	"bot/internal/service/bot"
 )
@@ -27,8 +28,18 @@ func (sp *Provider) GetAgentService() agent.Service {
 		sp.agentService = agent.NewService(
 			sp.config,
 			sp.logger,
-			sp.GetGithubClient(),
+			sp.getAIClient(),
 		)
 	}
 	return sp.agentService
+}
+
+// getAIClient возвращает клиент ии в зависимости от выбранного провайдера.
+func (sp *Provider) getAIClient() agent.Client {
+	switch sp.config.App.AIProvider {
+	case pkg_config.AIProviderAnthropic:
+		return sp.GetAnthropicClient()
+	default:
+		return sp.GetGithubClient()
+	}
 }
