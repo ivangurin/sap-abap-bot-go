@@ -1,17 +1,16 @@
 package bot
 
 import (
+	"bot/internal/model"
 	"context"
 	"slices"
 	"strings"
 
 	tgbot "github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-
-	"bot/internal/model"
 )
 
-func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *models.Update) {
+func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *models.Update) {
 	if update.Message == nil {
 		return
 	}
@@ -26,7 +25,7 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 
 	// Если сообщение в чате с ботом
 	if update.Message.Chat.ID == update.Message.From.ID {
-		if !slices.Contains(s.config.AdminUserIDs, update.Message.From.ID) {
+		if !slices.Contains(s.config.Telegram.AdminUserIDs, update.Message.From.ID) {
 			return
 		}
 		// Если сообщение в группе
@@ -55,7 +54,7 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 
 	answers, err := s.agentService.ProcessPrompt(ctx, messageText, threadMessages)
 	if err != nil {
-		s.logger.Errorf("process prompt: %s", err.Error())
+		s.logger.Errorf(ctx, "process prompt: %s", err.Error())
 		return
 	}
 
@@ -76,7 +75,7 @@ func (s *Service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 			ParseMode: models.ParseModeMarkdown,
 		})
 		if err != nil {
-			s.logger.Errorf("send message: %s", err.Error())
+			s.logger.Errorf(ctx, "send message: %s", err.Error())
 			continue
 		}
 

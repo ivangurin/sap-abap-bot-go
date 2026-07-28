@@ -3,29 +3,32 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 
+	"github.com/caarlos0/env/v7"
 	"github.com/joho/godotenv"
 )
 
-// nolint: gosec
-const (
-	envBotToken       = "SAP_ABAP_BOT_TOKEN"
-	envGitHubToken    = "SAP_ABAP_BOT_GITHUB_TOKEN"
-	envAdminUserIDs   = "SAP_ABAP_BOT_ADMIN_USER_IDS"
-	envAllowedChatIDs = "SAP_ABAP_BOT_ALLOWED_CHAT_IDS"
-	envDebug          = "SAP_ABAP_BOT_DEBUG"
-)
-
 type Config struct {
-	AIModels       []string
-	SystemPrompt   string
-	BotToken       string
-	GitHubToken    string
-	AdminUserIDs   []int64
-	AllowedChatIDs []int64
-	Debug          bool
+	App      App
+	Telegram Telegram
+	GitHub   GitHub
+}
+
+type App struct {
+	AIProvider   string `env:"SAP_ABAP_BOT_AI_PROVIDER" envDefault:"github"`
+	SystemPrompt string
+	LogLevel     string `env:"SAP_ABAP_BOT_LOG_LEVEL" envDefault:"debug"`
+	LogFile      string `env:"SAP_ABAP_BOT_LOG_FILE" envDefault:""`
+}
+
+type Telegram struct {
+	BotToken       string  `env:"SAP_ABAP_BOT_TOKEN"`
+	AdminUserIDs   []int64 `env:"SAP_ABAP_BOT_ADMIN_USER_IDS"`
+	AllowedChatIDs []int64 `env:"SAP_ABAP_BOT_ALLOWED_CHAT_IDS"`
+}
+type GitHub struct {
+	Token   string `env:"SAP_ABAP_BOT_GITHUB_TOKEN"`
+	AIModel string `env:"SAP_ABAP_BOT_GITHUB_AI_MODEL" envDefault:"gpt-4.1"`
 }
 
 func NewConfig() (*Config, error) {
@@ -35,11 +38,14 @@ func NewConfig() (*Config, error) {
 		if err != nil {
 			return nil, fmt.Errorf("load .env file: %w", err)
 		}
-	} else if !os.IsNotExist(err) {
-		return nil, fmt.Errorf("check .env file: %w", err)
 	}
 
-	systemPrompt := `
+	var config Config
+	if err := env.Parse(&config); err != nil {
+		return nil, fmt.Errorf("parse config: %w", err)
+	}
+
+	config.App.SystemPrompt = `
 		# Системный промпт для SAP/ABAP эксперта
 		Вы - эксперт по системе SAP и языку программирования ABAP с многолетним опытом работы, а так же сопутствующих технологий.
 		Ваша основная задача - отвечать ТОЛЬКО на вопросы, связанные с SAP и ABAP и все что с ним связано.
@@ -78,47 +84,31 @@ func NewConfig() (*Config, error) {
 		- Если вопрос не является вопросом, напиши в ответе почему он не является вопросом.
 	`
 
-	config := &Config{
-		AIModels:     []string{"gpt-4.1", "gpt-4o", "gpt-4.1-mini", "gpt-4o-mini", "gpt-4.1-nano"},
-		SystemPrompt: systemPrompt,
-		BotToken:     os.Getenv(envBotToken),
-		GitHubToken:  os.Getenv(envGitHubToken),
-	}
+	// strUserIDs := os.Getenv(envAdminUserIDs)
+	// if strUserIDs != "" {
+	// 	userIDs := strings.Split(strUserIDs, ",")
+	// 	config.Telegram.AdminUserIDs = make([]int64, 0, len(userIDs))
+	// 	for _, userIDStr := range userIDs {
+	// 		userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("parse %s: %w", envAdminUserIDs, err)
+	// 		}
+	// 		config.Telegram.AdminUserIDs = append(config.Telegram.AdminUserIDs, userID)
+	// 	}
+	// }
 
-	strUserIDs := os.Getenv(envAdminUserIDs)
-	if strUserIDs != "" {
-		userIDs := strings.Split(strUserIDs, ",")
-		config.AdminUserIDs = make([]int64, 0, len(userIDs))
-		for _, userIDStr := range userIDs {
-			userID, err := strconv.ParseInt(userIDStr, 10, 64)
-			if err != nil {
-				return nil, fmt.Errorf("parse %s: %w", envAdminUserIDs, err)
-			}
-			config.AdminUserIDs = append(config.AdminUserIDs, userID)
-		}
-	}
+	// strChatIDs := os.Getenv(envAllowedChatIDs)
+	// if strChatIDs != "" {
+	// 	chatIDs := strings.Split(strChatIDs, ",")
+	// 	config.Telegram.AllowedChatIDs = make([]int64, 0, len(chatIDs))
+	// 	for _, chatIDStr := range chatIDs {
+	// 		chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("parse %s: %w", envAllowedChatIDs, err)
+	// 		}
+	// 		config.Telegram.AllowedChatIDs = append(config.Telegram.AllowedChatIDs, chatID)
+	// 	}
+	// }
 
-	strChatIDs := os.Getenv(envAllowedChatIDs)
-	if strChatIDs != "" {
-		chatIDs := strings.Split(strChatIDs, ",")
-		config.AllowedChatIDs = make([]int64, 0, len(chatIDs))
-		for _, chatIDStr := range chatIDs {
-			chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
-			if err != nil {
-				return nil, fmt.Errorf("parse %s: %w", envAllowedChatIDs, err)
-			}
-			config.AllowedChatIDs = append(config.AllowedChatIDs, chatID)
-		}
-	}
-
-	debug := os.Getenv(envDebug)
-	if debug != "" {
-		debugValue, err := strconv.ParseBool(debug)
-		if err != nil {
-			return nil, fmt.Errorf("parse %s: %w", envDebug, err)
-		}
-		config.Debug = debugValue
-	}
-
-	return config, nil
+	return &config, nil
 }

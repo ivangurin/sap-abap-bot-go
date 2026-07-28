@@ -6,13 +6,14 @@ import (
 )
 
 type services struct {
-	botService   bot.IService
-	agentService agent.IService
+	botService   bot.Service
+	agentService agent.Service
 }
 
-func (sp *Provider) GetBotService() bot.IService {
+func (sp *Provider) GetBotService() bot.Service {
 	if sp.botService == nil {
 		sp.botService = bot.NewService(
+			sp.ctx,
 			sp.config,
 			sp.logger,
 			sp.GetAgentService(),
@@ -21,7 +22,7 @@ func (sp *Provider) GetBotService() bot.IService {
 	return sp.botService
 }
 
-func (sp *Provider) GetAgentService() agent.IService {
+func (sp *Provider) GetAgentService() agent.Service {
 	if sp.agentService == nil {
 		sp.agentService = agent.NewService(
 			sp.config,

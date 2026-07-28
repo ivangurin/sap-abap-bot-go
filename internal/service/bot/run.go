@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (s *Service) Run(ctx context.Context) error {
+func (s *service) Run(ctx context.Context) error {
 	me, err := s.bot.GetMe(ctx)
 	if err != nil {
 		return fmt.Errorf("get bot info: %w", err)

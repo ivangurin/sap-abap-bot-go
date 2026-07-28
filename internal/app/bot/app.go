@@ -2,8 +2,6 @@ package bot
 
 import (
 	"context"
-	"os"
-	"syscall"
 
 	pkg_config "bot/internal/config"
 	pkg_closer "bot/internal/pkg/closer"
@@ -12,64 +10,64 @@ import (
 )
 
 type App struct {
-	ctx    context.Context
 	config *pkg_config.Config
-	logger *pkg_logger.Logger
-	closer pkg_closer.Closer
-	sp     *service_provider.Provider
 }
 
-func NewApp() (*App, error) {
-	config, err := pkg_config.NewConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-
-	logger := pkg_logger.NewLogger(ctx)
-
-	closer := pkg_closer.NewCloser(logger, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	closer.Add(func() error {
-		cancel()
-		return nil
-	})
-
-	sp := service_provider.NewProvider(config, logger)
-
+func NewApp(config *pkg_config.Config) *App {
 	return &App{
-		ctx:    ctx,
 		config: config,
-		logger: logger,
-		closer: closer,
-		sp:     sp,
-	}, nil
+	}
 }
 
 func (a *App) Run() error {
-	a.logger.Info("app is starting...")
-	defer a.logger.Info("app has been finished")
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	go func() {
-		a.logger.Info("starting bot service...")
-		err := a.sp.GetBotService().Run(a.ctx)
+	logger := pkg_logger.NewLogger(a.config.App.LogLevel, a.config.App.LogFile)
+
+	logger.Info(ctx, "app is starting...")
+	defer logger.Info(ctx, "app has been finished")
+
+	logger.Debug(ctx, "with config", "config", a.config)
+
+	closer := pkg_closer.New(ctx, logger)
+	defer func() {
+		err := closer.Close()
 		if err != nil {
-			a.logger.Errorf("bot run: %s", err.Error())
-			a.closer.CloseAll()
+			logger.Info(ctx, "errors on close", "error", err.Error())
 		}
 	}()
 
-	a.closer.Add(func() error {
-		err := a.sp.GetBotService().Close(a.ctx)
+	sp := service_provider.NewProvider(ctx, a.config, logger)
+
+	errCh := make(chan error, 1)
+	go func() {
+		logger.Info(ctx, "starting bot service...")
+		err := sp.GetBotService().Run(ctx)
 		if err != nil {
+			logger.Error(ctx, "run bot", "error", err.Error())
+			errCh <- err
+			closer.Stop()
+		}
+	}()
+
+	closer.Add(func() error {
+		logger.Info(ctx, "stopping bot service ...")
+		err := sp.GetBotService().Close(ctx)
+		if err != nil {
+			logger.Error(ctx, "stop bot service", "error", err.Error())
 			return err
 		}
-		a.logger.Info("bot service has been finished")
+		logger.Info(ctx, "bot service has been finished")
 		return nil
 	})
 
-	defer a.closer.Wait()
+	closer.Wait()
 
-	return nil
+	select {
+	case err := <-errCh:
+		return err
+	default:
+		return nil
+	}
 }

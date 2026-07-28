@@ -1,11 +1,11 @@
 dir: "{{.InterfaceDir}}/mocks"
 mockname: "{{.InterfaceName}}"
-filename: "{{.InterfaceNameSnake}}.go"
+filename: "{{.InterfaceNameSnake}}.mock.go"
 outpkg: "mocks"
-include-regex: ".+Mock"
+include-regex: ".*"
 with-expecter: true
 issue-845-fix: true
 resolve-type-alias: false
 disable-version-string: true
 packages:
-  bot/internal/client/github:
+  bot/internal/clients/github:

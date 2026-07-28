@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (s *Service) getThread(threadID int64) *model.Thread {
+func (s *service) getThread(threadID int64) *model.Thread {
 	thread, exists := s.threads[threadID]
 	if !exists {
 		thread = &model.Thread{
@@ -22,7 +22,7 @@ func (s *Service) getThread(threadID int64) *model.Thread {
 	return thread
 }
 
-func (s *Service) addThreadMessage(threadID int64, messageType model.MessageType, messageText string) {
+func (s *service) addThreadMessage(threadID int64, messageType model.MessageType, messageText string) {
 	if messageText == "" {
 		return
 	}
@@ -38,7 +38,7 @@ func (s *Service) addThreadMessage(threadID int64, messageType model.MessageType
 	})
 }
 
-func (s *Service) getThreadMessages(threadID int64) []*model.ThreadMessage {
+func (s *service) getThreadMessages(threadID int64) []*model.ThreadMessage {
 	thread, exists := s.threads[threadID]
 	if !exists {
 		return []*model.ThreadMessage{}
@@ -47,7 +47,7 @@ func (s *Service) getThreadMessages(threadID int64) []*model.ThreadMessage {
 	return thread.Messages
 }
 
-func (s *Service) clearThreads(ctx context.Context) {
+func (s *service) clearThreads(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
 
@@ -61,7 +61,7 @@ func (s *Service) clearThreads(ctx context.Context) {
 	}
 }
 
-func (s *Service) clearThreadsInt() {
+func (s *service) clearThreadsInt() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

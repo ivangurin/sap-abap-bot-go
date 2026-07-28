@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (s *Service) Close(ctx context.Context) error {
+func (s *service) Close(ctx context.Context) error {
 	_, err := s.bot.Close(ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "Too Many Requests") {

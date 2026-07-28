@@ -1,23 +1,22 @@
 package agent
 
 import (
+	"bot/internal/clients/github"
+	"bot/internal/model"
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"bot/internal/client/github"
-	"bot/internal/model"
 )
 
-func (s *Service) ProcessPrompt(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) ([]*Answer, error) {
+func (s *service) ProcessPrompt(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) ([]*Answer, error) {
 	resp, err := s.chatCompletion(ctx, prompt, threadMessages)
 	if err != nil {
-		s.logger.Errorf("chat completion: %s", err.Error())
+		s.logger.Errorf(ctx, "chat completion: %s", err.Error())
 		return nil, fmt.Errorf("chatCompletion: %w", err)
 	}
 
 	if resp.Error != nil {
-		s.logger.Errorf("chat completion error: %s (type: %s, param: %s, code: %s)",
+		s.logger.Errorf(ctx, "chat completion error: %s (type: %s, param: %s, code: %s)",
 			resp.Error.Message, resp.Error.Type, resp.Error.Param, resp.Error.Code)
 		return []*Answer{{Answer: resp.Error.Message}}, nil
 	}
@@ -29,9 +28,9 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string, threadMessag
 		}
 
 		for _, toolCall := range choice.Message.ToolCalls {
-			answer, err := s.executeFunction(toolCall.Function.Name, toolCall.Function.Arguments)
+			answer, err := s.executeFunction(ctx, toolCall.Function.Name, toolCall.Function.Arguments)
 			if err != nil {
-				s.logger.Errorf("execute function %s: %s", toolCall.Function.Name, err.Error())
+				s.logger.Errorf(ctx, "execute function %s: %s", toolCall.Function.Name, err.Error())
 				continue
 			}
 			if answer != nil {
@@ -43,11 +42,11 @@ func (s *Service) ProcessPrompt(ctx context.Context, prompt string, threadMessag
 	return result, nil
 }
 
-func (s *Service) chatCompletion(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) (*github.ChatCompletionResponse, error) {
+func (s *service) chatCompletion(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) (*github.ChatCompletionResponse, error) {
 	messages := make([]*github.ChatCompletionRequestMessage, 0, len(threadMessages)+2)
 	messages = append(messages, &github.ChatCompletionRequestMessage{
 		Role:    RoleSystem,
-		Content: s.config.SystemPrompt,
+		Content: s.config.App.SystemPrompt,
 	})
 
 	for _, threadMessage := range threadMessages {
@@ -71,37 +70,33 @@ func (s *Service) chatCompletion(ctx context.Context, prompt string, threadMessa
 	})
 
 	var err error
-	for _, AIModel := range s.config.AIModels {
-		var resp *github.ChatCompletionResponse
-		resp, err = s.githubClient.ChatCompletions(ctx, &github.ChatCompletionRequest{
-			Model:       AIModel,
-			Messages:    messages,
-			Tools:       s.tools,
-			ToolChoice:  ToolChoiceAuto,
-			Temperature: Temperature,
-		})
-		if err != nil {
-			s.logger.Errorf("get chat completion for model %s: %s", AIModel, err.Error())
-			continue
-		}
 
-		return resp, nil
+	var resp *github.ChatCompletionResponse
+	resp, err = s.githubClient.ChatCompletions(ctx, &github.ChatCompletionRequest{
+		Messages:    messages,
+		Tools:       s.tools,
+		ToolChoice:  ToolChoiceAuto,
+		Temperature: Temperature,
+	})
+	if err != nil {
+		s.logger.Errorf(ctx, "chat completion: %s", err.Error())
+		return nil, fmt.Errorf("get chat completion: %w", err)
 	}
 
-	return nil, err
+	return resp, nil
 }
 
-func (s *Service) executeFunction(functionName, arguments string) (*Answer, error) {
+func (s *service) executeFunction(ctx context.Context, functionName, arguments string) (*Answer, error) {
 	switch functionName {
 	case "send_answer":
 		answer := &Answer{}
 		if err := json.Unmarshal([]byte(arguments), answer); err != nil {
-			s.logger.Errorf("unmarshal answer: %s", err.Error())
+			s.logger.Errorf(ctx, "unmarshal answer: %s", err.Error())
 			return nil, err
 		}
 		return answer, nil
 	default:
-		s.logger.Warnf("unknown function name: %s", functionName)
+		s.logger.Warnf(ctx, "unknown function name: %s", functionName)
 	}
 
 	return nil, nil

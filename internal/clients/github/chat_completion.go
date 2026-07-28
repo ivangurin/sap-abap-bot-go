@@ -10,14 +10,16 @@ import (
 
 // REST API endpoints for models inference
 // https://docs.github.com/en/rest/models/inference?apiVersion=2022-11-28#run-an-inference-request
-func (c *Client) ChatCompletions(ctx context.Context, request *ChatCompletionRequest) (*ChatCompletionResponse, error) {
+func (c *client) ChatCompletions(ctx context.Context, request *ChatCompletionRequest) (*ChatCompletionResponse, error) {
+	request.Model = c.config.GitHub.AIModel
+
 	jsonData, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}
 
-	if c.config.Debug {
-		c.logger.Debugf("ChatCompletions request: %s", string(jsonData))
+	if c.logger.IsWithDebug() {
+		c.logger.Debugf(ctx, "ChatCompletions request: %s", string(jsonData))
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, host+chatCompletions, bytes.NewBuffer(jsonData))
@@ -26,7 +28,7 @@ func (c *Client) ChatCompletions(ctx context.Context, request *ChatCompletionReq
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+c.config.GitHubToken)
+	httpReq.Header.Set("Authorization", "Bearer "+c.config.GitHub.Token)
 	httpReq.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 
 	httpClient := &http.Client{}
@@ -37,7 +39,7 @@ func (c *Client) ChatCompletions(ctx context.Context, request *ChatCompletionReq
 	defer func() {
 		err := httpResp.Body.Close()
 		if err != nil {
-			c.logger.Errorf("close response body: %s", err.Error())
+			c.logger.Errorf(ctx, "close response body: %s", err.Error())
 		}
 	}()
 
@@ -46,8 +48,8 @@ func (c *Client) ChatCompletions(ctx context.Context, request *ChatCompletionReq
 		return nil, err
 	}
 
-	if c.config.Debug {
-		c.logger.Debugf("ChatCompletions response: %s", string(body))
+	if c.logger.IsWithDebug() {
+		c.logger.Debugf(ctx, "ChatCompletions response: %s", string(body))
 	}
 
 	response := &ChatCompletionResponse{}

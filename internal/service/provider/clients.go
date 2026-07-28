@@ -1,12 +1,12 @@
 package service_provider
 
-import "bot/internal/client/github"
+import "bot/internal/clients/github"
 
 type clients struct {
-	githubClient github.IClient
+	githubClient github.Client
 }
 
-func (sp *Provider) GetGithubClient() github.IClient {
+func (sp *Provider) GetGithubClient() github.Client {
 	if sp.githubClient == nil {
 		sp.githubClient = github.NewClient(
 			sp.config,

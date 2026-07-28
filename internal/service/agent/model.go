@@ -7,7 +7,7 @@ const (
 
 	ToolChoiceAuto = "auto"
 
-	Temperature = 0.1
+	Temperature = 1
 )
 
 type Answer struct {
