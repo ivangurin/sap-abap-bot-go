@@ -91,8 +91,13 @@ jobs:
             export SAP_ABAP_BOT_TOKEN=${{ secrets.SAP_ABAP_BOT_TOKEN }}
             export SAP_ABAP_BOT_ADMIN_USER_IDS=${{ vars.SAP_ABAP_BOT_ADMIN_USER_IDS }}
             export SAP_ABAP_BOT_ALLOWED_CHAT_IDS=${{ vars.SAP_ABAP_BOT_ALLOWED_CHAT_IDS }}
+            export SAP_ABAP_BOT_AI_PROVIDER=${{ vars.SAP_ABAP_BOT_AI_PROVIDER }}
+            export SAP_ABAP_BOT_ANTHROPIC_BASE_URL=${{ vars.SAP_ABAP_BOT_ANTHROPIC_BASE_URL }}
+            export SAP_ABAP_BOT_ANTHROPIC_TOKEN=${{ secrets.SAP_ABAP_BOT_ANTHROPIC_TOKEN }}
+            export SAP_ABAP_BOT_ANTHROPIC_AI_MODEL=${{ vars.SAP_ABAP_BOT_ANTHROPIC_AI_MODEL }}
             export SAP_ABAP_BOT_GITHUB_TOKEN=${{ secrets.SAP_ABAP_BOT_GITHUB_TOKEN }}
-            export SAP_ABAP_BOT_DEBUG=${{ vars.SAP_ABAP_BOT_DEBUG }}
+            export SAP_ABAP_BOT_GITHUB_AI_MODEL=${{ vars.SAP_ABAP_BOT_GITHUB_AI_MODEL }}
+            export SAP_ABAP_BOT_LOG_LEVEL=${{ vars.SAP_ABAP_BOT_LOG_LEVEL }}
             REPO_DIR="sap-abap-bot-go"
             REPO_URL="https://github.com/ivangurin/sap-abap-bot-go.git"
             if [ ! -d "$REPO_DIR" ]; then
