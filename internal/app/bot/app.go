@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"fmt"
 
 	pkg_config "bot/internal/config"
 	pkg_closer "bot/internal/pkg/closer"
@@ -28,7 +29,7 @@ func (a *App) Run() error {
 	logger.Info(ctx, "app is starting...")
 	defer logger.Info(ctx, "app has been finished")
 
-	logger.Debug(ctx, "with config", "config", a.config)
+	logger.Debug(ctx, "with config", "config", a.config.LogString())
 
 	closer := pkg_closer.New(ctx, logger)
 	defer func() {
@@ -40,10 +41,17 @@ func (a *App) Run() error {
 
 	sp := service_provider.NewProvider(ctx, a.config, logger)
 
+	botService, err := sp.GetBotService()
+	if err != nil {
+		logger.Error(ctx, "init bot service", "error", err.Error())
+
+		return fmt.Errorf("init bot service: %w", err)
+	}
+
 	errCh := make(chan error, 1)
 	go func() {
 		logger.Info(ctx, "starting bot service...")
-		err := sp.GetBotService().Run(ctx)
+		err := botService.Run(ctx)
 		if err != nil {
 			logger.Error(ctx, "run bot", "error", err.Error())
 			errCh <- err
@@ -53,7 +61,7 @@ func (a *App) Run() error {
 
 	closer.Add(func() error {
 		logger.Info(ctx, "stopping bot service ...")
-		err := sp.GetBotService().Close(ctx)
+		err := botService.Close(ctx)
 		if err != nil {
 			logger.Error(ctx, "stop bot service", "error", err.Error())
 

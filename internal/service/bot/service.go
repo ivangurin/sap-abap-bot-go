@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	tgbot "github.com/go-telegram/bot"
@@ -27,7 +28,7 @@ type service struct {
 	bot          *tgbot.Bot
 	agentService agent.Service
 	username     string
-	threads      map[int64]*model.Thread
+	threads      map[threadKey]*model.Thread
 	mu           sync.Mutex
 }
 
@@ -36,7 +37,7 @@ func NewService(
 	config *pkg_config.Config,
 	logger pkg_logger.Logger,
 	agentService agent.Service,
-) Service {
+) (Service, error) {
 	service := &service{
 		ctx:          ctx,
 		config:       config,
@@ -53,13 +54,13 @@ func NewService(
 		opts = append(opts, tgbot.WithDebug())
 	}
 
-	var err error
-	service.bot, err = tgbot.New(config.Telegram.BotToken, opts...)
+	bot, err := tgbot.New(config.Telegram.BotToken, opts...)
 	if err != nil {
-		panic("failed to create bot: " + err.Error())
+		return nil, fmt.Errorf("create bot: %w", err)
 	}
 
-	service.threads = make(map[int64]*model.Thread)
+	service.bot = bot
+	service.threads = make(map[threadKey]*model.Thread)
 
-	return service
+	return service, nil
 }

@@ -22,6 +22,8 @@ func (s *service) ProcessPrompt(ctx context.Context, prompt string, threadMessag
 				Role: model.ChatRoleAssistant,
 				Text: threadMessage.Text,
 			})
+		default:
+			// Неизвестные типы сообщений в треде пропускаем.
 		}
 	}
 

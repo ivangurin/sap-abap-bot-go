@@ -1,6 +1,8 @@
 package service_provider
 
 import (
+	"fmt"
+
 	pkg_config "bot/internal/config"
 	"bot/internal/service/agent"
 	"bot/internal/service/bot"
@@ -11,17 +13,22 @@ type services struct {
 	agentService agent.Service
 }
 
-func (sp *Provider) GetBotService() bot.Service {
+func (sp *Provider) GetBotService() (bot.Service, error) {
 	if sp.botService == nil {
-		sp.botService = bot.NewService(
+		botService, err := bot.NewService(
 			sp.ctx,
 			sp.config,
 			sp.logger,
 			sp.GetAgentService(),
 		)
+		if err != nil {
+			return nil, fmt.Errorf("init bot service: %w", err)
+		}
+
+		sp.botService = botService
 	}
 
-	return sp.botService
+	return sp.botService, nil
 }
 
 func (sp *Provider) GetAgentService() agent.Service {

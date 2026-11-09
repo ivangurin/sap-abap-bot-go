@@ -33,7 +33,7 @@
 | --- | --- | --- |
 | `SAP_ABAP_BOT_TOKEN` | Токен телеграм-бота | — |
 | `SAP_ABAP_BOT_ADMIN_USER_IDS` | ID администраторов (через запятую), кому бот отвечает в личке | — |
-| `SAP_ABAP_BOT_ALLOWED_CHAT_IDS` | ID разрешённых чатов (через запятую); пусто — без ограничений | — |
+| `SAP_ABAP_BOT_ALLOWED_CHAT_IDS` | ID разрешённых групповых чатов (через запятую); пусто — бот работает только в личке с админами | — |
 | `SAP_ABAP_BOT_AI_PROVIDER` | Провайдер ИИ: `github` или `anthropic` | `github` |
 | `SAP_ABAP_BOT_GITHUB_BASE_URL` | Базовый url GitHub Models | `https://models.inference.ai.azure.com` |
 | `SAP_ABAP_BOT_GITHUB_TOKEN` | Токен GitHub-аккаунта | — |
@@ -66,7 +66,7 @@ make pull-and-run
 - `make genmock` — перегенерация моков (mockery).
 - `make test` — тесты (`go test -race ./...`).
 
-Технологии: Go 1.26, [go-telegram/bot](https://github.com/go-telegram/bot),
+Технологии: Go 1.27, [go-telegram/bot](https://github.com/go-telegram/bot),
 официальные SDK OpenAI и Anthropic.
 
 Устройство проекта и правила его поддержки описаны в [CLAUDE.md](./CLAUDE.md).
