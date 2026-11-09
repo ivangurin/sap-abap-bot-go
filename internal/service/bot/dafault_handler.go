@@ -14,6 +14,9 @@ func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 	if update.Message == nil {
 		return
 	}
+	if update.Message.From == nil {
+		return
+	}
 	if update.Message.From.IsBot {
 		return
 	}
@@ -30,6 +33,9 @@ func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		}
 		// Если сообщение в группе
 	} else {
+		if !slices.Contains(s.config.Telegram.AllowedChatIDs, update.Message.Chat.ID) {
+			return
+		}
 		allowed := false
 		_, exists := s.threads[messageThreadID]
 		if exists {
@@ -58,7 +64,7 @@ func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		return
 	}
 
-	// Добавляем вопроса в тред
+	// Добавляем вопрос в тред
 	s.addThreadMessage(messageThreadID, model.MessageTypeRequest, messageText)
 
 	for _, answer := range answers {
