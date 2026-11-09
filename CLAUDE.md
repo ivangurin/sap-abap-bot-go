@@ -111,3 +111,6 @@ Ask(ctx context.Context, systemPrompt string, messages []*model.ChatMessage) ([]
 - Обновление `go get tool golangci-lint@<new>` поднимает по MVS и другие зависимости
   (gosec v2.29.0 тянет anthropic-sdk-go ≥ v1.66.0); при конфликте genproto помогает
   `go get github.com/prometheus/common@latest golang.org/x/oauth2@latest` (verified live, 2026-11-09).
+- Remote настроен на SSH (`git@github.com:...`): push по HTTPS падает с
+  «could not read Username … Device not configured» — учётных данных нет, аутентификация
+  через SSH-ключ (verified live, 2026-11-09).
