@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bot/internal/app/bot"
 	"fmt"
 	"os"
+
+	"bot/internal/app/bot"
 
 	pkg_config "bot/internal/config"
 )

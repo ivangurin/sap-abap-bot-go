@@ -1,9 +1,10 @@
 package agent
 
 import (
-	"bot/internal/model"
 	"context"
 	"fmt"
+
+	"bot/internal/model"
 )
 
 func (s *service) ProcessPrompt(ctx context.Context, prompt string, threadMessages []*model.ThreadMessage) ([]*Answer, error) {
@@ -32,6 +33,7 @@ func (s *service) ProcessPrompt(ctx context.Context, prompt string, threadMessag
 	answers, err := s.aiClient.Ask(ctx, s.config.App.SystemPrompt, messages)
 	if err != nil {
 		s.logger.Errorf(ctx, "ask ai provider: %s", err.Error())
+
 		return nil, fmt.Errorf("ask: %w", err)
 	}
 

@@ -12,6 +12,7 @@ func (s *service) Close(ctx context.Context) error {
 		if strings.Contains(err.Error(), "Too Many Requests") {
 			return nil
 		}
+
 		return fmt.Errorf("close bot: %w", err)
 	}
 

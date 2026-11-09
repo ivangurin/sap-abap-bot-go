@@ -1,8 +1,6 @@
 package bot
 
 import (
-	"bot/internal/model"
-	"bot/internal/service/agent"
 	"context"
 	"sync"
 
@@ -10,8 +8,9 @@ import (
 	"github.com/go-telegram/bot/models"
 
 	pkg_config "bot/internal/config"
-
+	"bot/internal/model"
 	pkg_logger "bot/internal/pkg/logger"
+	"bot/internal/service/agent"
 )
 
 type Service interface {

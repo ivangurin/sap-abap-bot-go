@@ -1,9 +1,10 @@
 package service_provider
 
 import (
+	"context"
+
 	pkg_config "bot/internal/config"
 	pkg_logger "bot/internal/pkg/logger"
-	"context"
 )
 
 type Provider struct {

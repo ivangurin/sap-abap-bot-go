@@ -19,6 +19,7 @@ func (c *client) Ask(ctx context.Context, systemPrompt string, messages []*model
 		block := anthropic.NewTextBlock(message.Text)
 		if message.Role == model.ChatRoleAssistant {
 			requestMessages = append(requestMessages, anthropic.NewAssistantMessage(block))
+
 			continue
 		}
 		requestMessages = append(requestMessages, anthropic.NewUserMessage(block))

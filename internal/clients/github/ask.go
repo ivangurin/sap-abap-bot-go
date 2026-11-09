@@ -19,6 +19,7 @@ func (c *client) Ask(ctx context.Context, systemPrompt string, messages []*model
 	for _, message := range messages {
 		if message.Role == model.ChatRoleAssistant {
 			requestMessages = append(requestMessages, openai.AssistantMessage(message.Text))
+
 			continue
 		}
 		requestMessages = append(requestMessages, openai.UserMessage(message.Text))

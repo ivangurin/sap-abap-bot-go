@@ -20,6 +20,7 @@ func (sp *Provider) GetBotService() bot.Service {
 			sp.GetAgentService(),
 		)
 	}
+
 	return sp.botService
 }
 
@@ -31,6 +32,7 @@ func (sp *Provider) GetAgentService() agent.Service {
 			sp.getAIClient(),
 		)
 	}
+
 	return sp.agentService
 }
 

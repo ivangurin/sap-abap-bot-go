@@ -5,6 +5,7 @@ go 1.27
 tool (
 	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 	github.com/vektra/mockery/v2
+	mvdan.cc/gofumpt
 )
 
 require (

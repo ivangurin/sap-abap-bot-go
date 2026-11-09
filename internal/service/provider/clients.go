@@ -17,6 +17,7 @@ func (sp *Provider) GetGithubClient() github.Client {
 			sp.logger,
 		)
 	}
+
 	return sp.githubClient
 }
 
@@ -27,5 +28,6 @@ func (sp *Provider) GetAnthropicClient() anthropic.Client {
 			sp.logger,
 		)
 	}
+
 	return sp.anthropicClient
 }

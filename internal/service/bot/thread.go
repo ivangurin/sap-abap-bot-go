@@ -1,9 +1,10 @@
 package bot
 
 import (
-	"bot/internal/model"
 	"context"
 	"time"
+
+	"bot/internal/model"
 )
 
 func (s *service) getThread(threadID int64) *model.Thread {

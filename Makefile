@@ -15,10 +15,13 @@ lint-full:
 		--max-same-issues=1000 \
 		./...
 
+format:
+	go tool gofumpt -l -w -extra .
+
 genmock: 
 	go tool mockery
 
-generate: genmock
+generate: genmock format
 
 test:
 	go test -v -race -count=1 ./...

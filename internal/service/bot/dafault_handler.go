@@ -1,13 +1,14 @@
 package bot
 
 import (
-	"bot/internal/model"
 	"context"
 	"slices"
 	"strings"
 
 	tgbot "github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+
+	"bot/internal/model"
 )
 
 func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *models.Update) {
@@ -61,6 +62,7 @@ func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 	answers, err := s.agentService.ProcessPrompt(ctx, messageText, threadMessages)
 	if err != nil {
 		s.logger.Errorf(ctx, "process prompt: %s", err.Error())
+
 		return
 	}
 
@@ -82,6 +84,7 @@ func (s *service) DefaultHandler(ctx context.Context, bot *tgbot.Bot, update *mo
 		})
 		if err != nil {
 			s.logger.Errorf(ctx, "send message: %s", err.Error())
+
 			continue
 		}
 

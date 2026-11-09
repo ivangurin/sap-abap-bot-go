@@ -1,13 +1,14 @@
 package closer
 
 import (
-	"bot/internal/pkg/logger"
 	"context"
 	"errors"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"bot/internal/pkg/logger"
 )
 
 const (

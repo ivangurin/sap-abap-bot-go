@@ -56,9 +56,11 @@ func (a *App) Run() error {
 		err := sp.GetBotService().Close(ctx)
 		if err != nil {
 			logger.Error(ctx, "stop bot service", "error", err.Error())
+
 			return err
 		}
 		logger.Info(ctx, "bot service has been finished")
+
 		return nil
 	})
 

@@ -1,11 +1,10 @@
 package agent
 
 import (
-	"bot/internal/model"
 	"context"
 
 	pkg_config "bot/internal/config"
-
+	"bot/internal/model"
 	pkg_logger "bot/internal/pkg/logger"
 )
 
