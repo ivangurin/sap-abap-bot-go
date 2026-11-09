@@ -2,7 +2,15 @@ version: "2"
 
 linters:
   enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - copyloopvar
+    - dupword
     - errcheck
+    - errchkjson
     - funlen
     - goconst
     - godox
@@ -10,39 +18,56 @@ linters:
     - govet
     - gocyclo
     - gocognit
-    - goconst
+    - iface
     - inamedparam
     - ineffassign
     - loggercheck
     - musttag
+    - nilerr
+    - nilnesserr
+    - nlreturn
+    - perfsprint
     - predeclared
     - prealloc
     - revive
+    - rowserrcheck
+    - spancheck
+    - sqlclosecheck
     - sloglint
     - staticcheck
     - testifylint
+    - tparallel
+    - unconvert
     - unparam
     - unused
     - usestdlibvars
     - wastedassign
+    - whitespace
   settings:
+    funlen:
+      lines: 250
+      statements: 100
     errcheck:
       check-type-assertions: true
       exclude-functions:
-        - fmt.Println
         - fmt.Fprintln
+        - fmt.Fprint
         - fmt.Fprintf
     dupl:
       threshold: 100
     goconst:
       min-len: 2
-      min-occurrences: 2
-    funlen: #default 60/40
-      lines: 245
-      statements: 102
+      # 4 (not the reference's 2): this project has many JSON fixtures/templates —
+      # repetition there is data, not code duplication
+      min-occurrences: 4
     revive:
       enable-all-rules: true
       rules:
+        # Function argument limit — parity with SonarQube go:S107 (the 8th
+        # parameter is already a remark); anything beyond that is a parameter
+        # struct. The revive default is 8.
+        - name: argument-limit
+          arguments: [7]
         - name: line-length-limit
           disabled: true
         - name: package-comments
@@ -71,15 +96,30 @@ linters:
           disabled: true
         - name: flag-parameter
           disabled: true
+        - name: package-directory-mismatch
+          disabled: true
+        - name: nested-structs
+          disabled: true
+        - name: unsecure-url-scheme
+          disabled: true
+        - name: package-naming
+          disabled: true
+        - name: blank-imports
+          disabled: true
+        - name: unhandled-error
+          arguments:
+            - "fmt\\..*"
+            - "bytes\\..*"
+            - "strings\\..*"
         - name: var-naming
           arguments:
             - []
             - []
             - [{ skipPackageNameChecks: true }]
     gocyclo:
-      min-complexity: 30
+      min-complexity: 15
     gocognit:
-      min-complexity: 30
+      min-complexity: 15
 
 formatters:
   enable:

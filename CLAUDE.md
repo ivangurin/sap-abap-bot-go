@@ -91,3 +91,13 @@ Ask(ctx context.Context, systemPrompt string, messages []*model.ChatMessage) ([]
 - Мок GitHub-клиента генерируется mockery (см. `.mockery.yaml`); после изменения
   интерфейса `github.Client` запускай `make genmock`.
 - Перед завершением задачи прогоняй `go build ./...`, `go vet ./...` и `make lint`.
+
+## Известные готчи
+
+- golangci-lint обязан поддерживать тулчейн из CI: v2.1.6 не читает export data
+  Go 1.27 → typecheck «undefined: <pkg>» на все сторонние импорты; CI упал, когда
+  `go-version: "stable"` на GH Actions стал отдавать Go 1.27 (verified live, 2026-11-09).
+  Фикс — tool-директива в `go.mod` (сейчас v2.15.0).
+- Обновление `go get tool golangci-lint@<new>` поднимает по MVS и другие зависимости
+  (gosec v2.29.0 тянет anthropic-sdk-go ≥ v1.66.0); при конфликте genproto помогает
+  `go get github.com/prometheus/common@latest golang.org/x/oauth2@latest` (verified live, 2026-11-09).
